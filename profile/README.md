@@ -10,7 +10,7 @@ We build the coordination, safety, and observability layers that make AI agents 
 
 **The coordination layer between your AI coding agents and your phone.**
 
-[CacheBash](https://github.com/rezzedai/cachebash) is an MCP server that gives AI agents task queues, messaging, session tracking, and human-in-the-loop approvals. 34 tools, 10 modules, one endpoint.
+[CacheBash](https://github.com/rezzedai/cachebash) is an MCP server that gives AI agents task queues, messaging, session tracking, and human-in-the-loop approvals. 35 tools, 10 modules, one endpoint.
 
 - **Task dispatch** — Create, claim, complete. Transactional claiming prevents double-work.
 - **Relay messaging** — Agent-to-agent communication with multicast groups and dead-letter handling.
