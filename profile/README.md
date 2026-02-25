@@ -1,139 +1,83 @@
 # RezzedAI
 
-Infrastructure for bounded multi-agent systems built on Claude.
+Infrastructure for bounded multi-agent systems.
 
-RezzedAI contains the production-grade coordination, safety, and validation layers extracted from a persistent multi-agent orchestration system running on Claude Code.
-
-The focus is not "agent autonomy."
-
-The focus is controlled, observable execution.
+We build the coordination, safety, and observability layers that make AI agents work together reliably. Not "agent autonomy" — controlled, observable execution.
 
 ---
 
-## Context
+## CacheBash
 
-The underlying system coordinates role-specialized Claude instances (Planner → Worker topology) through CacheBash, a custom MCP relay deployed on GCP Cloud Run.
+**The coordination layer between your AI coding agents and your phone.**
 
-Current scope:
+[CacheBash](https://github.com/rezzedai/cachebash) is an MCP server that gives AI agents task queues, messaging, session tracking, and human-in-the-loop approvals. 34 tools, 10 modules, one endpoint.
 
-- 650+ typed tasks within bounded multi-agent orchestration
-- 3,500+ total tasks across orchestration + legacy systems
-- Explicit WORK vs CONTROL task taxonomy
-- Transactional task claiming with TTL-based relay containment
-- Tool-boundary audit logging
+- **Task dispatch** — Create, claim, complete. Transactional claiming prevents double-work.
+- **Relay messaging** — Agent-to-agent communication with multicast groups and dead-letter handling.
+- **Session management** — Track what every agent is doing, heartbeats, progress monitoring.
+- **Sprint orchestration** — Break work into stories, execute in waves, track completion.
+- **Mobile companion** — Monitor and control your agents from your phone.
+- **Human-in-the-loop** — Questions routed to mobile for approval. Agents pause, you decide.
 
-This is CLI-based orchestration using Claude Code, not hosted public API traffic.
+```bash
+npx cachebash init
+```
+
+One command. Browser auth. MCP config injected. Done.
+
+[Documentation](https://docs.rezzed.ai) · [Get Started](https://docs.rezzed.ai/getting-started/quick-start)
+
+---
+
+## Safety & Governance
+
+### [Guardian](https://github.com/rezzedai/guardian)
+Pre-tool-use policy gate for Claude Code. Intercepts all tool invocations, evaluates against configurable policies, maintains tamper-proof audit trail. Zero dependencies.
+
+### [SpecFirst](https://github.com/rezzedai/specfirst)
+Confidence-scored planning. 4-dimensional scoring (Requirement Clarity, Implementation Certainty, Risk Awareness, Dependency Clarity) with threshold-based gating. Plan before you build.
+
+### [Dreamwatch](https://github.com/rezzedai/dreamwatch)
+Overnight autonomous execution with budget caps, git isolation, wall-clock timeouts, and auto-generated morning reports.
+
+---
+
+## Infrastructure Libraries
+
+### [poll-hooks](https://github.com/rezzedai/poll-hooks)
+Async work-polling with claim semantics and lifecycle hooks. The backbone of agent task consumption.
+
+### [dual-auth](https://github.com/rezzedai/dual-auth)
+Firebase Auth + API key dual authentication with AES-256 encryption utilities.
+
+### [rate-gate](https://github.com/rezzedai/rate-gate)
+Sliding window rate limiter with pluggable backends.
+
+### [dispatch](https://github.com/rezzedai/dispatch)
+Lightweight MCP task server. SQLite-backed, zero config, under 300 lines.
+
+---
+
+## Content & Analysis
+
+### [Voicekeeper](https://github.com/rezzedai/voicekeeper)
+AI writing detection + voice matching. Know when content sounds like ChatGPT. Maintain your authentic voice.
+
+### [xfetch](https://github.com/rezzedai/xfetch)
+Social media content extraction via Playwright. No API keys, no rate limits.
+
+### [Reach](https://github.com/rezzedai/reach)
+AI-powered personalized outreach. Your message. Their name. Your voice.
 
 ---
 
 ## Architectural Priorities
 
-### 1. Governance Before Execution
-
-All tool calls pass through policy gates prior to invocation.
-
-Agents operate within:
-- Identity-scoped permissions
-- Context consumption limits
-- Static token ceilings
-- Rate limiting constraints
-- Delegation boundaries (Planner cannot execute application code directly)
-
-LLM output is treated as untrusted until validated.
-
-### 2. Typed Task Lifecycle
-
-Tasks are explicitly categorized:
-
-- **WORK** — sprint stories, directives, builds
-- **CONTROL** — ACKs, handoffs, system signals
-
-This prevents activity inflation and allows clearer measurement of productive execution.
-
-Lifecycle states are moving toward explicit SUCCESS / FAILED / SKIPPED semantics.
-
-### 3. Bounded Autonomy
-
-Runaway behavior is mitigated through:
-
-- Context health monitoring (self-handoff at threshold)
-- Story decomposition constraints (≤30% context per unit of work)
-- TTL-based relay expiry with dead-letter handling
-- Scoped subagent delegation
-- Explicit identity isolation
-
-Autonomy is allowed only within defined envelopes.
-
-### 4. Vendor Neutrality
-
-The relay infrastructure is intentionally decoupled from any specific provider SDK.
-
-The builder tier supports pluggable model routing (Claude, Gemini, etc.) via adapter abstraction.
-
-No orchestration logic depends on proprietary SDK semantics.
-
-### 5. Telemetry Hardening (In Progress)
-
-Active instrumentation work includes:
-
-- Explicit completion semantics (SUCCESS / FAILED / SKIPPED)
-- Retry classification
-- Dynamic token budgeting
-- Prompt/output provenance hashing
-- Latency + cost rollups per task class
-
-The goal is to move from "controlled by protocol" to "controlled by measurement."
-
----
-
-## Public Infrastructure
-
-### [Guardian](https://github.com/rezzedai/guardian)
-Pre-tool-use policy gate for Claude Code sessions.
-
-- Intercepts all tool invocations via hook integration
-- Evaluates against configurable blocklist policies
-- Tamper-proof audit trail with SHA256-chain integrity
-- Budget enforcement with configurable breach actions
-- Zero dependencies
-
-### [SpecFirst](https://github.com/rezzedai/specfirst)
-Confidence-scored planning workflow.
-
-- 4-dimensional confidence scoring (Requirement Clarity, Implementation Certainty, Risk Awareness, Dependency Clarity)
-- Threshold-based gating: proceed / flag / block
-- Enforces decomposition prior to build
-- Auto-scoping for trivial tasks
-
-### [Dreamwatch](https://github.com/rezzedai/dreamwatch)
-Overnight autonomous execution with safety guardrails.
-
-- Budget caps with USD cost limits
-- Git isolation — dedicated branch, never touches main
-- Wall-clock timeout enforcement
-- Auto-generated morning reports and PRs
-- Graceful shutdown with state preservation
-
-### [Dispatch](https://github.com/rezzedai/dispatch)
-Minimal MCP task server for agent delegation.
-
-- Transactional task lifecycle: pending → active → done
-- Atomic operations via SQLite
-- Works with any MCP client
-- Zero configuration, no cloud dependency
-- Core logic under 300 lines
-
----
-
-## What This Org Represents
-
-These repositories are the exposed infrastructure interfaces of a larger orchestration system.
-
-The coordination relay, identity model, and governance framework remain private.
-
-The goal is not maximal autonomy.
-
-The goal is safe, measurable execution within boundaries that matter.
+1. **Governance before execution** — All tool calls pass through policy gates. LLM output is untrusted until validated.
+2. **Typed task lifecycle** — Explicit SUCCESS / FAILED / SKIPPED semantics. No ambiguous completion states.
+3. **Bounded autonomy** — Context limits, story decomposition constraints, TTL-based expiry, scoped delegation.
+4. **Vendor neutrality** — No orchestration logic depends on proprietary SDK semantics.
+5. **Observable execution** — Trace propagation, cost tracking, fleet health monitoring. Controlled by measurement, not hope.
 
 ---
 
