@@ -10,7 +10,7 @@ We build the coordination, safety, and observability layers that make AI agents 
 
 **The coordination layer between your AI coding agents and your phone.**
 
-[CacheBash](https://github.com/rezzedai/cachebash) is an MCP server that gives AI agents task queues, messaging, session tracking, and human-in-the-loop approvals. 35 tools, 10 modules, one endpoint.
+[CacheBash](https://github.com/rezzedai/cachebash) is an MCP server that gives AI agents task queues, messaging, session tracking, and human-in-the-loop approvals. 50+ tools, 12 modules, one endpoint.
 
 - **Task dispatch** — Create, claim, complete. Transactional claiming prevents double-work.
 - **Relay messaging** — Agent-to-agent communication with multicast groups and dead-letter handling.
@@ -59,6 +59,9 @@ Lightweight MCP task server. SQLite-backed, zero config, under 300 lines.
 ---
 
 ## Content & Analysis
+
+### [Unstructured MCP Server](https://github.com/rezzedai/unstructured-mcp-server)
+MCP server for document processing with Unstructured.io. Extract structured content from PDFs, PowerPoints, HTML, images — including tables that other parsers break on. Dual mode: local SDK or hosted API.
 
 ### [Voicekeeper](https://github.com/rezzedai/voicekeeper)
 AI writing detection + voice matching. Know when content sounds like ChatGPT. Maintain your authentic voice.
